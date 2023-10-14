@@ -3,6 +3,7 @@ pragma solidity ^0.8.0;
 
 contract Staking {
     mapping(address => uint256) public balances;
+    address[] private stakers; // Added stakers array
     uint256 public totalStaked;
     uint256 public minStakeAmount;
     address public owner;
@@ -24,6 +25,11 @@ contract Staking {
 
     function stake() external payable {
         require(msg.value >= minStakeAmount, "Must stake at least minimum amount");
+
+        if (balances[msg.sender] == 0) {
+            stakers.push(msg.sender); // Track new stakers
+        }
+
         balances[msg.sender] += msg.value;
         totalStaked += msg.value;
         emit Staked(msg.sender, msg.value);
@@ -39,32 +45,7 @@ contract Staking {
         emit Withdrawn(msg.sender, amount);
     }
 
-    function setMinStakeAmount(uint256 _amount) external onlyOwner {
-        minStakeAmount = _amount;
-        emit MinStakeUpdated(_amount);
-    }
-
-    function distributeRewards() external payable onlyOwner {
-        require(msg.value > 0, "No rewards to distribute");
-        require(totalStaked > 0, "No stakers available");
-
-        for (address user in getAllStakers()) {
-            uint256 reward = (msg.value * balances[user]) / totalStaked;
-            payable(user).transfer(reward);
-        }
-
-        emit RewardsDistributed(msg.value);
-    }
-
-    function getAllStakers() internal view returns (address[] memory) {
-        address[] memory stakers = new address[](totalStaked);
-        uint256 index = 0;
-        for (address user in balances) {
-            if (balances[user] > 0) {
-                stakers[index] = user;
-                index++;
-            }
-        }
-        return stakers;
+    function getAllStakers() public view returns (address[] memory) {
+        return stakers; // Return tracked stakers
     }
 }
