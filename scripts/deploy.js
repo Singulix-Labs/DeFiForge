@@ -8,9 +8,10 @@ async function main() {
     await staking.deployed();
     console.log(`Staking contract deployed successfully to address: ${staking.address}`);
 
-    // Simulate a function call to initialize the contract if needed
+    // Simulate a function call to initialize the contract with optional parameters
     console.log("Initializing Staking contract...");
-    const initTx = await staking.initialize();
+    const initParams = process.env.INIT_PARAMS ? JSON.parse(process.env.INIT_PARAMS) : [];
+    const initTx = await staking.initialize(...initParams);
     await initTx.wait();
     console.log("Staking contract initialized successfully!");
 
