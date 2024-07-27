@@ -3,7 +3,7 @@ const hre = require("hardhat");
 async function main() {
     const Staking = await hre.ethers.getContractFactory("Staking");
     console.log("Deploying Staking contract...");
-    const staking = await Staking.deploy();
+    const staking = await Staking.deploy({ gasLimit: 5000000 }); // Added gas limit customization
 
     await staking.deployed();
     console.log(`Staking contract deployed successfully to address: ${staking.address}`);
