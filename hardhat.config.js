@@ -27,6 +27,10 @@ module.exports = {
         optimism: { // Added Optimism testnet configuration
             url: process.env.OPTIMISM_RPC_URL || "https://optimism-goerli.infura.io/v3/YOUR_API_KEY",
             accounts: getAccounts()
+        },
+        bscTestnet: { // Added Binance Smart Chain testnet configuration
+            url: process.env.BSC_TESTNET_RPC_URL || "https://data-seed-prebsc-1-s1.binance.org:8545",
+            accounts: getAccounts()
         }
     }
 };
