@@ -23,6 +23,10 @@ module.exports = {
         mumbai: { // Added Mumbai testnet for Polygon
             url: process.env.MUMBAI_RPC_URL || "https://polygon-mumbai.infura.io/v3/YOUR_API_KEY",
             accounts: getAccounts()
+        },
+        optimism: { // Added Optimism testnet configuration
+            url: process.env.OPTIMISM_RPC_URL || "https://optimism-goerli.infura.io/v3/YOUR_API_KEY",
+            accounts: getAccounts()
         }
     }
 };
