@@ -1,12 +1,23 @@
-function distributeRewards() external payable onlyOwner {
-    require(msg.value > 0, "No rewards to distribute");
-    require(totalStaked > 0, "No stakers available");
+function withdraw(uint256 amount) external {
+    require(balances[msg.sender] >= amount, "Insufficient balance");
 
-    for (uint256 i = 0; i < stakers.length; i++) {
-        address user = stakers[i];
-        uint256 reward = (msg.value * balances[user]) / totalStaked;
-        payable(user).transfer(reward);
+    balances[msg.sender] -= amount;
+    totalStaked -= amount;
+
+    if (balances[msg.sender] == 0) {
+        removeStaker(msg.sender); // Remove empty stakers
     }
 
-    emit RewardsDistributed(msg.value);
+    payable(msg.sender).transfer(amount);
+    emit Withdrawn(msg.sender, amount);
+}
+
+function removeStaker(address staker) internal {
+    for (uint256 i = 0; i < stakers.length; i++) {
+        if (stakers[i] == staker) {
+            stakers[i] = stakers[stakers.length - 1]; // Move last staker to this position
+            stakers.pop(); // Remove last element
+            break;
+        }
+    }
 }
