@@ -1,7 +1,7 @@
 pragma solidity ^0.8.0;
 
 contract Staking {
-    mapping(address => uint256) public balances;
+    mapping(address => uint256) public balances; 
     
     function stake() external payable {
         balances[msg.sender] += msg.value;
