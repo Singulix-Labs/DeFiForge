@@ -13,6 +13,10 @@ module.exports = {
         goerli: { // Added Goerli test network configuration
             url: process.env.GOERLI_RPC_URL, 
             accounts: [process.env.PRIVATE_KEY]
+        },
+        sepolia: { // Added Sepolia test network configuration
+            url: process.env.SEPOLIA_RPC_URL,
+            accounts: [process.env.PRIVATE_KEY]
         }
     }
 };
