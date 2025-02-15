@@ -11,46 +11,80 @@ const contractABI = [
 export default function Home() {
     const [amount, setAmount] = useState("");
     const [balance, setBalance] = useState(0);
-    
+    const [account, setAccount] = useState(null);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState("");
+
     useEffect(() => {
-        getBalance();
+        connectWallet();
+        if (window.ethereum) {
+            window.ethereum.on("accountsChanged", connectWallet);
+            window.ethereum.on("chainChanged", () => window.location.reload());
+        }
     }, []);
 
-    const getBalance = async () => {
+    const connectWallet = async () => {
+        if (!window.ethereum) return alert("No crypto wallet found");
+        const provider = new ethers.providers.Web3Provider(window.ethereum);
+        const accounts = await provider.send("eth_requestAccounts", []);
+        setAccount(accounts[0]);
+        getBalance(accounts[0]);
+    };
+
+    const getBalance = async (userAddress) => {
         if (!window.ethereum) return;
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const contract = new ethers.Contract(contractAddress, contractABI, provider);
-        const signer = provider.getSigner();
-        const userAddress = await signer.getAddress();
-        const balance = await contract.balances(userAddress);
-        setBalance(ethers.utils.formatEther(balance));
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const contract = new ethers.Contract(contractAddress, contractABI, provider);
+            const balance = await contract.balances(userAddress);
+            setBalance(ethers.utils.formatEther(balance));
+        } catch (err) {
+            setError("Error fetching balance");
+        }
     };
 
-    const handleStake = async () => {
+    const handleTransaction = async (action) => {
         if (!window.ethereum) return alert("No crypto wallet found");
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(contractAddress, contractABI, signer);
-        await contract.stake({ value: ethers.utils.parseEther(amount) });
-        getBalance();
-    };
+        if (!amount || isNaN(amount) || parseFloat(amount) <= 0) return alert("Enter a valid amount");
 
-    const handleWithdraw = async () => {
-        if (!window.ethereum) return alert("No crypto wallet found");
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const signer = provider.getSigner();
-        const contract = new ethers.Contract(contractAddress, contractABI, signer);
-        await contract.withdraw(ethers.utils.parseEther(amount));
-        getBalance();
+        setLoading(true);
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const signer = provider.getSigner();
+            const contract = new ethers.Contract(contractAddress, contractABI, signer);
+            const value = ethers.utils.parseEther(amount);
+
+            if (action === "stake") {
+                await contract.stake({ value });
+            } else {
+                await contract.withdraw(value);
+            }
+            getBalance(account);
+        } catch (err) {
+            setError(`Transaction failed: ${err.message}`);
+        }
+        setLoading(false);
     };
 
     return (
         <div className="p-10">
             <h1 className="text-2xl font-bold">DeFi Staking DApp</h1>
+            {account ? <p>Connected: {account}</p> : <button onClick={connectWallet} className="bg-green-500 text-white p-2">Connect Wallet</button>}
             <p className="mb-4">Your Staked Balance: {balance} ETH</p>
-            <input type="number" placeholder="Amount in ETH" className="border p-2" value={amount} onChange={e => setAmount(e.target.value)} />
-            <button className="bg-blue-500 text-white p-2 mx-2" onClick={handleStake}>Stake</button>
-            <button className="bg-red-500 text-white p-2" onClick={handleWithdraw}>Withdraw</button>
+            <input
+                type="number"
+                placeholder="Amount in ETH"
+                className="border p-2"
+                value={amount}
+                onChange={(e) => setAmount(e.target.value)}
+            />
+            <button className="bg-blue-500 text-white p-2 mx-2" onClick={() => handleTransaction("stake")} disabled={loading}>
+                {loading ? "Staking..." : "Stake"}
+            </button>
+            <button className="bg-red-500 text-white p-2" onClick={() => handleTransaction("withdraw")} disabled={loading}>
+                {loading ? "Withdrawing..." : "Withdraw"}
+            </button>
+            {error && <p className="text-red-500">{error}</p>}
         </div>
     );
 }
