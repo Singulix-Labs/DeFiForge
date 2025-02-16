@@ -14,6 +14,7 @@ export default function Home() {
     const [account, setAccount] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
+    const [status, setStatus] = useState("");  // Added status for transaction feedback
 
     useEffect(() => {
         connectWallet();
@@ -48,6 +49,7 @@ export default function Home() {
         if (!amount || isNaN(amount) || parseFloat(amount) <= 0) return alert("Enter a valid amount");
 
         setLoading(true);
+        setStatus("Transaction pending...");  // Update status when transaction starts
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner();
@@ -60,8 +62,10 @@ export default function Home() {
                 await contract.withdraw(value);
             }
             getBalance(account);
+            setStatus("Transaction successful!");  // Update status when transaction is successful
         } catch (err) {
             setError(`Transaction failed: ${err.message}`);
+            setStatus("");  // Clear status if transaction fails
         }
         setLoading(false);
     };
@@ -84,7 +88,8 @@ export default function Home() {
             <button className="bg-red-500 text-white p-2" onClick={() => handleTransaction("withdraw")} disabled={loading}>
                 {loading ? "Withdrawing..." : "Withdraw"}
             </button>
-            {error && <p className="text-red-500">{error}</p>}
+            {status && <p className="text-green-500 mt-4">{status}</p>} {/* Added status message */}
+            {error && <p className="text-red-500 mt-4">{error}</p>}  {/* Error message */}
         </div>
     );
 }
