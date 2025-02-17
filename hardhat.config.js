@@ -19,6 +19,10 @@ module.exports = {
         sepolia: { // Added Sepolia test network configuration
             url: process.env.SEPOLIA_RPC_URL || "https://eth-sepolia.alchemyapi.io/v2/YOUR_API_KEY",
             accounts: getAccounts()
+        },
+        mumbai: { // Added Mumbai testnet for Polygon
+            url: process.env.MUMBAI_RPC_URL || "https://polygon-mumbai.infura.io/v3/YOUR_API_KEY",
+            accounts: getAccounts()
         }
     }
 };
