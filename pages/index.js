@@ -14,7 +14,7 @@ export default function Home() {
     const [account, setAccount] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
-    const [status, setStatus] = useState("");  // Added status for transaction feedback
+    const [status, setStatus] = useState("");  
 
     useEffect(() => {
         connectWallet();
@@ -26,10 +26,14 @@ export default function Home() {
 
     const connectWallet = async () => {
         if (!window.ethereum) return alert("No crypto wallet found");
-        const provider = new ethers.providers.Web3Provider(window.ethereum);
-        const accounts = await provider.send("eth_requestAccounts", []);
-        setAccount(accounts[0]);
-        getBalance(accounts[0]);
+        try {
+            const provider = new ethers.providers.Web3Provider(window.ethereum);
+            const accounts = await provider.send("eth_requestAccounts", []);
+            setAccount(accounts[0]);
+            getBalance(accounts[0]);
+        } catch (err) {
+            setError("Failed to connect wallet");
+        }
     };
 
     const getBalance = async (userAddress) => {
@@ -49,23 +53,21 @@ export default function Home() {
         if (!amount || isNaN(amount) || parseFloat(amount) <= 0) return alert("Enter a valid amount");
 
         setLoading(true);
-        setStatus("Transaction pending...");  // Update status when transaction starts
+        setStatus("Transaction pending...");  
         try {
             const provider = new ethers.providers.Web3Provider(window.ethereum);
             const signer = provider.getSigner();
             const contract = new ethers.Contract(contractAddress, contractABI, signer);
             const value = ethers.utils.parseEther(amount);
 
-            if (action === "stake") {
-                await contract.stake({ value });
-            } else {
-                await contract.withdraw(value);
-            }
+            const tx = action === "stake" ? contract.stake({ value }) : contract.withdraw(value);
+            await tx.wait(); // Wait for transaction confirmation
+
             getBalance(account);
-            setStatus("Transaction successful!");  // Update status when transaction is successful
+            setStatus("Transaction successful!");
         } catch (err) {
             setError(`Transaction failed: ${err.message}`);
-            setStatus("");  // Clear status if transaction fails
+            setStatus("");  
         }
         setLoading(false);
     };
@@ -88,8 +90,8 @@ export default function Home() {
             <button className="bg-red-500 text-white p-2" onClick={() => handleTransaction("withdraw")} disabled={loading}>
                 {loading ? "Withdrawing..." : "Withdraw"}
             </button>
-            {status && <p className="text-green-500 mt-4">{status}</p>} {/* Added status message */}
-            {error && <p className="text-red-500 mt-4">{error}</p>}  {/* Error message */}
+            {status && <p className="text-green-500 mt-4">{status}</p>} 
+            {error && <p className="text-red-500 mt-4">{error}</p>}  
         </div>
     );
 }
