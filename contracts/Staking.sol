@@ -1,9 +1,11 @@
-// Import OpenZeppelin's ReentrancyGuard and SafeMath
+// Import OpenZeppelin's ReentrancyGuard, SafeMath, and Address library
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/utils/math/SafeMath.sol";
+import "@openzeppelin/contracts/utils/Address.sol";
 
 contract StakingContract is ReentrancyGuard {
     using SafeMath for uint256;
+    using Address for address payable;
 
     mapping(address => uint256) public balances;
     address[] public stakers;
@@ -22,7 +24,7 @@ contract StakingContract is ReentrancyGuard {
             removeStaker(msg.sender);
         }
 
-        payable(msg.sender).transfer(amount);
+        payable(msg.sender).sendValue(amount); // Uses Address library for safe ETH transfer
         emit Withdrawn(msg.sender, amount);
     }
 
