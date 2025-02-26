@@ -32,8 +32,12 @@ module.exports = {
             url: process.env.BSC_TESTNET_RPC_URL || "https://data-seed-prebsc-1-s1.binance.org:8545",
             accounts: getAccounts()
         },
-        arbitrumGoerli: { // Added Arbitrum Goerli testnet
+        arbitrumGoerli: {
             url: process.env.ARBITRUM_GOERLI_RPC_URL || "https://arb-goerli.g.alchemy.com/v2/YOUR_API_KEY",
+            accounts: getAccounts()
+        },
+        avalancheFuji: { // Added Avalanche Fuji testnet
+            url: process.env.AVALANCHE_FUJI_RPC_URL || "https://api.avax-test.network/ext/bc/C/rpc",
             accounts: getAccounts()
         }
     }
