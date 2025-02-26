@@ -10,6 +10,11 @@ async function main() {
     await staking.deployed();
     console.log(`Staking contract deployed successfully to address: ${staking.address}`);
 
+    // Listen for deployment confirmation
+    staking.once("Deployed", () => {
+        console.log("Deployment event received: Staking contract is live!");
+    });
+
     // Ensure the contract is initialized properly
     if (process.env.INIT_PARAMS) {
         try {
