@@ -4,8 +4,14 @@ try {
     const contract = new ethers.Contract(contractAddress, contractABI, signer);
 
     const tx = await contract.distributeRewards({ value: ethers.utils.parseEther(amount) });
+
+    // Listen for transaction confirmation
+    provider.once(tx.hash, (receipt) => {
+        console.log("Transaction confirmed in block:", receipt.blockNumber);
+        setStatus("Rewards distributed successfully!");
+    });
+
     await tx.wait();
-    setStatus("Rewards distributed successfully!");
 } catch (err) {
     console.error("Transaction error:", err); // Logs full error details
 
