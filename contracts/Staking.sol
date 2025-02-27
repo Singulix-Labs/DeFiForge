@@ -11,8 +11,22 @@ contract StakingContract is ReentrancyGuard {
     address[] public stakers;
     uint256 public totalStaked;
 
+    event Deposited(address indexed staker, uint256 amount); // Added event for deposits
     event Withdrawn(address indexed staker, uint256 amount);
     event StakerRemoved(address indexed staker);
+
+    function deposit() external payable nonReentrant { // Added deposit function with reentrancy protection
+        require(msg.value > 0, "Deposit must be greater than zero");
+
+        if (balances[msg.sender] == 0) {
+            stakers.push(msg.sender);
+        }
+
+        balances[msg.sender] = balances[msg.sender].add(msg.value);
+        totalStaked = totalStaked.add(msg.value);
+
+        emit Deposited(msg.sender, msg.value);
+    }
 
     function withdraw(uint256 amount) external nonReentrant { // Added reentrancy guard
         require(balances[msg.sender] >= amount, "Insufficient balance");
