@@ -1,4 +1,6 @@
 try {
+    setStatus("Processing transaction...");
+    
     const provider = new ethers.providers.Web3Provider(window.ethereum);
     const signer = provider.getSigner();
     const contract = new ethers.Contract(contractAddress, contractABI, signer);
@@ -19,7 +21,12 @@ try {
         setStatus("Transaction failed: Insufficient ETH balance");
     } else if (err.code === "ACTION_REJECTED") { // Added user rejection handling
         setStatus("Transaction rejected by user.");
+    } else if (err.code === "NETWORK_ERROR") { // Added retry logic for network issues
+        setStatus("Network error, retrying...");
+        setTimeout(() => distributeRewards(amount), 3000); // Retry after 3 seconds
     } else {
         setStatus(`Transaction failed: ${err.message}`);
     }
+} finally {
+    setLoading(false); // Ensure loading state is cleared after the process
 }
