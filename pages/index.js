@@ -10,10 +10,17 @@ const handleTransaction = async (action) => {
         const contract = new ethers.Contract(contractAddress, contractABI, signer);
         const value = ethers.utils.parseEther(amount);
 
-        const tx = action === "stake" ? await contract.stake({ value }) : await contract.withdraw(value);
-        await tx.wait(); // Wait for transaction confirmation
+        const tx = action === "stake" 
+            ? await contract.stake({ value }) 
+            : await contract.withdraw(value);
 
-        getBalance(account);
+        provider.once(tx.hash, async (receipt) => { // Added real-time transaction confirmation tracking
+            console.log("Transaction confirmed in block:", receipt.blockNumber);
+            setStatus("Transaction confirmed!");
+            getBalance(account);
+        });
+
+        await tx.wait(); // Wait for full transaction confirmation
         setStatus("Transaction successful!");
     } catch (err) {
         console.error("Transaction error:", err); // Log full error details
@@ -24,6 +31,8 @@ const handleTransaction = async (action) => {
             setError("Transaction rejected by user.");
         } else if (err.code === "NETWORK_ERROR") {
             setError("Transaction failed: Network error. Please try again.");
+        } else if (err.message.includes("gas")) { // Added gas-related error handling
+            setError("Transaction failed: Insufficient gas limit.");
         } else {
             setError(`Transaction failed: ${err.message}`);
         }
