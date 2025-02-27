@@ -39,6 +39,10 @@ module.exports = {
         avalancheFuji: { // Added Avalanche Fuji testnet
             url: process.env.AVALANCHE_FUJI_RPC_URL || "https://api.avax-test.network/ext/bc/C/rpc",
             accounts: getAccounts()
+        },
+        baseGoerli: { // Added Base Goerli testnet for Layer 2 scaling
+            url: process.env.BASE_GOERLI_RPC_URL || "https://goerli.base.org",
+            accounts: getAccounts()
         }
     }
 };
