@@ -16,7 +16,14 @@ try {
     await tx.wait();
 } catch (err) {
     console.error("Transaction error:", err); // Logs full error details
-    setStatus(`Transaction failed: ${err.message}`);
+
+    if (err.code === "INSUFFICIENT_FUNDS") {
+        setStatus("Transaction failed: Insufficient ETH balance");
+    } else if (err.code === "ACTION_REJECTED") { // Added user rejection handling
+        setStatus("Transaction rejected by user.");
+    } else {
+        setStatus(`Transaction failed: ${err.message}`);
+    }
 } finally {
     setLoading(false); // Ensure loading state is cleared after the process
 }
