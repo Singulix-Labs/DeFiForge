@@ -36,7 +36,7 @@ module.exports = {
             url: process.env.ARBITRUM_GOERLI_RPC_URL || "https://arb-goerli.g.alchemy.com/v2/YOUR_API_KEY",
             accounts: getAccounts()
         },
-        avalancheFuji: { // Added Avalanche Fuji testnet
+        avalancheFuji: { // Added Avalanche Fuji testnet for Avalanche platform
             url: process.env.AVALANCHE_FUJI_RPC_URL || "https://api.avax-test.network/ext/bc/C/rpc",
             accounts: getAccounts()
         },
