@@ -21,9 +21,23 @@ try {
         setStatus("Transaction failed: Insufficient ETH balance");
     } else if (err.code === "ACTION_REJECTED") { // Added user rejection handling
         setStatus("Transaction rejected by user.");
+    } else if (err.code === "NETWORK_ERROR") { // Added retry logic for network issues
+        setStatus("Network error, retrying...");
+        setTimeout(() => distributeRewards(amount), 3000); // Retry after 3 seconds
     } else {
         setStatus(`Transaction failed: ${err.message}`);
     }
+
+    // Added specific logging for error types to monitor the issue
+    if (err.code) {
+        console.log(`Error code: ${err.code}`);
+    }
+    if (err.message) {
+        console.log(`Error message: ${err.message}`);
+    }
 } finally {
     setLoading(false); // Ensure loading state is cleared after the process
+    console.log("Transaction processing completed."); // Added logging to indicate completion
+    // Added user-friendly message after transaction attempt
+    alert("Transaction attempt finished, please check the status.");
 }
