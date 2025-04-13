@@ -17,7 +17,7 @@ const handleTransaction = async (action) => {
         provider.once(tx.hash, async (receipt) => { // Added real-time transaction confirmation tracking
             console.log("Transaction confirmed in block:", receipt.blockNumber);
             setStatus("Transaction confirmed!");
-            getBalance(account);
+            getBalance(account); // Update balance after transaction confirmation
         });
 
         await tx.wait(); // Wait for full transaction confirmation
@@ -29,14 +29,15 @@ const handleTransaction = async (action) => {
             setError("Transaction failed: Insufficient funds");
         } else if (err.code === "ACTION_REJECTED") { // Added user rejection handling
             setError("Transaction rejected by user.");
-        } else if (err.code === "NETWORK_ERROR") {
+        } else if (err.code === "NETWORK_ERROR") { // Added network error handling with retry logic
             setError("Transaction failed: Network error. Please try again.");
+            setTimeout(() => handleTransaction(action), 3000); // Retry after 3 seconds
         } else if (err.message.includes("gas")) { // Added gas-related error handling
             setError("Transaction failed: Insufficient gas limit.");
         } else {
             setError(`Transaction failed: ${err.message}`);
         }
-        setStatus("");
+        setStatus(""); // Clear status in case of error
     }
-    setLoading(false);
+    setLoading(false); // Ensure loading state is cleared after the process
 };
